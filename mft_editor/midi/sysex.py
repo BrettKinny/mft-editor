@@ -29,7 +29,7 @@ BULK_PULL = 0x01
 # Encoder config SysEx tag offset (firmware subtracts 10 from tags)
 ENC_TAG_OFFSET = 10
 ENC_CFG_SIZE = 15
-MAX_BULK_PAYLOAD = 24
+MAX_BULK_PAYLOAD = 30
 
 
 def _header(cmd: int) -> list[int]:
