@@ -1,0 +1,1 @@
+"""MIDI communication layer."""
