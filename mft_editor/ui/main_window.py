@@ -151,19 +151,19 @@ class MainWindow(QMainWindow):
         # Device view (4x4 grid)
         self._device_view = DeviceView()
         self._device_view.encoder_selected.connect(self._on_encoder_selected)
-        right.addWidget(self._device_view, stretch=3)
+        right.addWidget(self._device_view, stretch=4)
 
         # Bottom: color picker + indicator preview
         bottom = QHBoxLayout()
 
         self._color_picker = ColorPickerPanel()
         self._color_picker.color_changed.connect(self._on_color_changed)
-        bottom.addWidget(self._color_picker, stretch=3)
+        bottom.addWidget(self._color_picker, stretch=1)
 
         self._indicator_preview = IndicatorPreview()
-        bottom.addWidget(self._indicator_preview, stretch=1)
+        bottom.addWidget(self._indicator_preview)
 
-        right.addLayout(bottom, stretch=2)
+        right.addLayout(bottom, stretch=0)
         main_layout.addLayout(right, stretch=1)
 
     def _build_statusbar(self):
