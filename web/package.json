@@ -1,0 +1,17 @@
+{
+  "name": "mft-editor-web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "pnpm --filter @mft-editor/core test",
+    "test:watch": "pnpm --filter @mft-editor/core test:watch",
+    "typecheck": "pnpm -r typecheck",
+    "dev": "pnpm --filter @mft-editor/app dev",
+    "build": "pnpm --filter @mft-editor/app build"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  },
+  "packageManager": "pnpm@9.12.0"
+}

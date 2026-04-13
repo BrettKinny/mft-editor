@@ -1,0 +1,25 @@
+{
+  "name": "@mft-editor/core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./enums": "./src/enums.ts",
+    "./model": "./src/model.ts",
+    "./sysex": "./src/sysex.ts",
+    "./colorMap": "./src/colorMap.ts",
+    "./presetFile": "./src/presetFile.ts",
+    "./transport": "./src/transport.ts",
+    "./mockTransport": "./src/mockTransport.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  }
+}
