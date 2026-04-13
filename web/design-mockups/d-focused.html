@@ -1,0 +1,1310 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MFT Editor — Mockup D · Focused</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+  rel="stylesheet"
+/>
+<style>
+  :root {
+    --bg: #000000;
+    --bg-elev: #0a0a0c;
+    --chassis-top: #17171b;
+    --chassis-bot: #0a0a0d;
+    --chassis-line: rgba(255, 255, 255, 0.06);
+    --line: #1c1c20;
+    --line-strong: #2a2a30;
+    --input-bg: #0c0c0e;
+    --input-line: #222226;
+    --text: #f5f5f7;
+    --text-dim: #9fa0a8;
+    --text-muted: #6c6d76;
+    --text-faint: #3a3b44;
+    --success: #84cc16;
+    --surface-hover: rgba(255, 255, 255, 0.04);
+    --surface-active: rgba(255, 255, 255, 0.08);
+    --state-line: rgba(255, 255, 255, 0.28);
+    --state-line-soft: rgba(255, 255, 255, 0.14);
+    --sans: "Inter", -apple-system, system-ui, "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--text);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+    font-weight: 400;
+  }
+
+  .app {
+    display: grid;
+    grid-template-rows: 46px 1fr 44px;
+    height: 100vh;
+  }
+
+  /* ─────────────── TOP BAR ─────────────── */
+  header.top {
+    display: flex;
+    align-items: center;
+    padding: 0 22px;
+    gap: 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  .brand {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+  .brand .slash { color: var(--text-muted); margin: 0 3px; font-weight: 400; }
+  .brand .sub {
+    color: var(--text-dim);
+    font-weight: 500;
+    letter-spacing: 0.14em;
+  }
+
+  .divider { width: 1px; height: 18px; background: var(--line); }
+  .t-spacer { flex: 1; }
+
+  .top-actions { display: flex; gap: 4px; }
+  .top-btn {
+    background: transparent;
+    border: 0;
+    color: var(--text-dim);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 120ms;
+  }
+  .top-btn:hover { color: var(--text); background: var(--surface-hover); }
+
+  .status {
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--text-dim);
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .status .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 8px rgba(132, 204, 22, 0.65);
+  }
+
+  /* ─────────────── MAIN ─────────────── */
+  main {
+    display: grid;
+    grid-template-columns: 448px 1fr;
+    min-height: 0;
+  }
+
+  .col {
+    min-width: 0;
+    min-height: 0;
+    overflow-y: auto;
+  }
+  .col.left {
+    border-right: 1px solid var(--line);
+    padding: 22px 24px 26px;
+  }
+  .col.right {
+    padding: 24px 44px 24px 36px;
+  }
+  .col::-webkit-scrollbar { width: 6px; }
+  .col::-webkit-scrollbar-track { background: transparent; }
+  .col::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
+
+  /* ─────────────── SECTION PRIMITIVE ─────────────── */
+  .sec + .sec { margin-top: 20px; }
+
+  .sec-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 10px;
+  }
+  .sec-head::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+    transform: translateY(-3px);
+  }
+  .sec-head .lab {
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--text);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+  .sec-head .meta {
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  /* ─────────────── CHASSIS (LEFT TOP) ─────────────── */
+  .chassis {
+    position: relative;
+    background:
+      linear-gradient(180deg, var(--chassis-top) 0%, var(--chassis-bot) 100%);
+    border: 1px solid var(--chassis-line);
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.05) inset,
+      0 -1px 0 rgba(0, 0, 0, 0.5) inset,
+      0 16px 40px -16px rgba(0, 0, 0, 0.9);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 10px;
+    aspect-ratio: 1;
+    width: 100%;
+  }
+
+  /* ─────────────── ENCODER ─────────────── */
+  .enc {
+    position: relative;
+    cursor: ns-resize;
+    border-radius: 50%;
+    transition: box-shadow 150ms ease;
+    touch-action: none;
+    user-select: none;
+  }
+  .enc:hover { box-shadow: 0 0 0 1.5px var(--state-line-soft); }
+  .enc.multi:not(.focus) { box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.18); }
+  .enc.focus { box-shadow: 0 0 0 1.5px var(--state-line); }
+  .enc.focus.multi { box-shadow: 0 0 0 1.5px var(--state-line); }
+  .enc.dragging { cursor: grabbing; }
+  .enc svg { display: block; width: 100%; height: 100%; overflow: visible; }
+  .enc .num {
+    position: absolute;
+    top: 3px;
+    left: 6px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-faint);
+    pointer-events: none;
+  }
+  .enc.focus .num { color: var(--text); }
+  .enc.multi:not(.focus) .num { color: var(--text-dim); }
+  .enc .det-mark {
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    pointer-events: none;
+  }
+
+  /* bank row */
+  .bank-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-top: 14px;
+  }
+  .bank-row button {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--text-dim);
+    padding: 7px 0;
+    border-radius: 4px;
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 140ms;
+  }
+  .bank-row button:hover {
+    color: var(--text);
+    border-color: var(--line-strong);
+    background: var(--surface-hover);
+  }
+  .bank-row button.active {
+    border-color: var(--state-line);
+    color: var(--text);
+    background: var(--surface-active);
+  }
+
+  /* quick selection actions */
+  .select-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+    padding: 0 2px;
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .select-actions a {
+    color: var(--text-dim);
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 2px 4px;
+    border-radius: 3px;
+  }
+  .select-actions a:hover { color: var(--text); background: var(--surface-hover); }
+  .select-actions .sep { color: var(--text-faint); }
+  .select-actions .spacer { flex: 1; }
+  #sel-count {
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+
+  /* ─────────────── FIELD (generic row) ─────────────── */
+  .field {
+    display: grid;
+    grid-template-columns: 98px 1fr;
+    align-items: center;
+    padding: 4px 0;
+    gap: 12px;
+  }
+  .field label {
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+  .field .ctl {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 0;
+  }
+
+  /* inputs */
+  .input {
+    background: var(--input-bg);
+    border: 1px solid var(--input-line);
+    color: var(--text);
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    width: 64px;
+    text-align: center;
+    transition: all 120ms;
+  }
+  .input:focus {
+    outline: none;
+    border-color: var(--state-line);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.06);
+  }
+  .input.wide { width: 100%; text-align: left; }
+  .input.tiny { width: 46px; padding: 5px 6px; }
+
+  /* select */
+  .select {
+    background: var(--input-bg);
+    border: 1px solid var(--input-line);
+    color: var(--text);
+    padding: 5px 22px 5px 10px;
+    border-radius: 4px;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M2 4l3 3 3-3' stroke='%23aaa' stroke-width='1' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 7px center;
+    cursor: pointer;
+  }
+  .select:focus {
+    outline: none;
+    border-color: var(--state-line);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.06);
+  }
+  .select.wide { width: 100%; padding-right: 26px; }
+
+  /* range */
+  .range {
+    background: var(--input-bg);
+    border: 1px solid var(--input-line);
+    border-radius: 4px;
+    position: relative;
+    height: 8px;
+    flex: 1;
+    min-width: 0;
+  }
+  .range .fill {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(255, 255, 255, 0.35);
+    border-radius: 3px;
+  }
+  .range .thumb {
+    position: absolute;
+    top: 50%;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--text);
+    transform: translate(-50%, -50%);
+    border: 1px solid #0a0a0a;
+  }
+  .range-val {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    min-width: 26px;
+    text-align: right;
+  }
+
+  /* toggle */
+  .toggle {
+    background: var(--input-bg);
+    border: 1px solid var(--input-line);
+    border-radius: 12px;
+    width: 32px;
+    height: 18px;
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 140ms;
+  }
+  .toggle::after {
+    content: "";
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    transition: all 140ms;
+  }
+  .toggle.on {
+    background: var(--surface-active);
+    border-color: var(--state-line);
+  }
+  .toggle.on::after {
+    left: calc(100% - 15px);
+    background: var(--text);
+  }
+  .toggle-label {
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .toggle-label.on { color: var(--text-dim); }
+
+  /* segmented */
+  .seg {
+    display: grid;
+    grid-auto-columns: 1fr;
+    grid-auto-flow: column;
+    background: var(--input-bg);
+    border: 1px solid var(--input-line);
+    border-radius: 4px;
+    overflow: hidden;
+    width: 100%;
+  }
+  .seg button {
+    background: transparent;
+    border: 0;
+    border-right: 1px solid var(--input-line);
+    color: var(--text-dim);
+    padding: 6px 4px;
+    font-size: 12px;
+    font-family: var(--sans);
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 120ms, background 120ms;
+  }
+  .seg button:last-child { border-right: 0; }
+  .seg button:hover:not(.active) { color: var(--text); background: var(--surface-hover); }
+  .seg button.active {
+    background: var(--surface-active);
+    color: var(--text);
+  }
+
+  /* side-switch 2-col */
+  .side-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px 14px;
+  }
+  .side-item {
+    display: grid;
+    grid-template-columns: 38px 1fr;
+    gap: 8px;
+    align-items: center;
+    min-width: 0;
+  }
+  .side-item .k {
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  /* ─────────────── RIGHT: HERO (ring inline with title) ─────────────── */
+  .hero-row {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 18px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  .hero-ring svg {
+    width: 120px;
+    height: 120px;
+    display: block;
+  }
+  .hero-title {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+  }
+  .hero-num {
+    font-family: var(--sans);
+    font-size: 64px;
+    line-height: 0.82;
+    font-weight: 300;
+    letter-spacing: -0.035em;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  .hero-meta { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .hero-kicker {
+    font-family: var(--sans);
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .hero-ref {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .hero-ref .pip {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #17c0eb;
+    box-shadow: 0 0 10px currentColor;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  /* ─────────────── RIGHT: settings grid ─────────────── */
+  .settings {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 26px 36px;
+    align-items: start;
+  }
+  .settings > .sec + .sec { margin-top: 0; }
+  .sec.full { grid-column: 1 / -1; }
+
+  /* Display & Behavior inline strip */
+  .db-inline {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 7px 0 2px;
+  }
+  .db-inline .item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .db-inline .item label {
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+  .db-inline .sep {
+    width: 1px;
+    height: 16px;
+    background: var(--line);
+  }
+
+  /* ─────────────── COLORS + POPOVER ─────────────── */
+  .colors-wrap {
+    position: relative;
+  }
+  .colors {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+  .csw {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: background 140ms;
+  }
+  .csw:hover { background: var(--surface-hover); }
+  .csw .chip {
+    width: 44px;
+    height: 22px;
+    border-radius: 3px;
+    border: 1px solid rgba(0, 0, 0, 0.6);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    flex-shrink: 0;
+    transition: box-shadow 140ms;
+  }
+  .csw.editing .chip {
+    box-shadow:
+      0 0 0 1.5px var(--state-line),
+      0 1px 3px rgba(0, 0, 0, 0.5);
+  }
+  .csw .meta {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    min-width: 0;
+  }
+  .csw .lbl {
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+  .csw.editing .lbl { color: var(--text); }
+  .csw .idx {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  /* Popover picker — slim */
+  .pop {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 20;
+    background: #0b0b0e;
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    padding: 10px;
+    box-shadow:
+      0 20px 50px -10px rgba(0, 0, 0, 0.85),
+      0 8px 20px rgba(0, 0, 0, 0.6);
+    display: none;
+    width: 248px;
+  }
+  .pop.open { display: block; }
+  .pop-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-family: var(--sans);
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .pop-head .val {
+    color: var(--text-dim);
+    font-family: var(--mono);
+  }
+  .pop-grid {
+    display: grid;
+    grid-template-columns: repeat(16, 1fr);
+    gap: 2px;
+  }
+  .pop-chip {
+    aspect-ratio: 1;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: transform 100ms;
+  }
+  .pop-chip:hover { transform: scale(1.35); z-index: 1; position: relative; }
+  .pop-chip.selected {
+    box-shadow: 0 0 0 1.5px #fff, 0 0 0 2.5px #000;
+  }
+
+  /* ─────────────── BOTTOM BAR ─────────────── */
+  footer.bottom {
+    display: flex;
+    align-items: center;
+    padding: 0 22px;
+    gap: 18px;
+    border-top: 1px solid var(--line);
+  }
+  footer.bottom .spacer { flex: 1; }
+  .sync-meta {
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+  .sync-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: var(--text);
+    padding: 7px 18px;
+    border-radius: 4px;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 150ms;
+  }
+  .sync-btn:hover {
+    background: var(--surface-hover);
+    border-color: rgba(255, 255, 255, 0.28);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ─────── Top bar ─────── -->
+  <header class="top">
+    <div class="brand">
+      MFT<span class="slash">/</span><span class="sub">Editor</span>
+    </div>
+    <div class="divider"></div>
+    <div class="top-actions">
+      <button class="top-btn">Load</button>
+      <button class="top-btn">Save</button>
+    </div>
+    <div class="t-spacer"></div>
+    <span class="status"><span class="dot"></span>USB · Connected</span>
+  </header>
+
+  <main>
+    <!-- ═══════════ LEFT COLUMN ═══════════ -->
+    <section class="col left">
+      <!-- Chassis with encoders -->
+      <div class="chassis">
+        <div class="grid" id="grid"></div>
+      </div>
+      <div class="bank-row">
+        <button class="active">Bank 1</button>
+        <button>Bank 2</button>
+        <button>Bank 3</button>
+        <button>Bank 4</button>
+      </div>
+      <div class="select-actions">
+        <a id="sel-all">All</a>
+        <span class="sep">·</span>
+        <a id="sel-none">None</a>
+        <div class="spacer"></div>
+        <span id="sel-count">1 selected</span>
+      </div>
+
+      <!-- Global -->
+      <div class="sec">
+        <div class="sec-head"><span class="lab">Global</span></div>
+        <div class="field">
+          <label>MIDI Channel</label>
+          <div class="ctl"><input class="input" value="3"></div>
+        </div>
+        <div class="field">
+          <label>Side Banked</label>
+          <div class="ctl">
+            <div class="toggle on"></div>
+            <span class="toggle-label on">On</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>RGB Bright</label>
+          <div class="ctl">
+            <div class="range"><div class="fill" style="width: 100%"></div><div class="thumb" style="left: 100%"></div></div>
+            <span class="range-val">127</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Indicator</label>
+          <div class="ctl">
+            <div class="range"><div class="fill" style="width: 100%"></div><div class="thumb" style="left: 100%"></div></div>
+            <span class="range-val">127</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Super Knob</label>
+          <div class="ctl">
+            <input class="input tiny" value="63">
+            <span style="color: var(--text-muted); font-family: var(--mono); font-size: 12px;">→</span>
+            <input class="input tiny" value="127">
+          </div>
+        </div>
+      </div>
+
+      <!-- Side switches (2-col) -->
+      <div class="sec">
+        <div class="sec-head"><span class="lab">Side Switches</span></div>
+        <div class="side-list">
+          <div class="side-item"><span class="k">SW 1</span><select class="select wide"><option selected>CC Hold</option><option>CC Toggle</option><option>Note Hold</option><option>Note Toggle</option><option>Shift Page 1</option><option>Shift Page 2</option><option>Bank Up</option><option>Bank Down</option><option>Bank 1</option><option>Bank 2</option><option>Bank 3</option><option>Bank 4</option><option>Cycle Bank</option></select></div>
+          <div class="side-item"><span class="k">SW 4</span><select class="select wide"><option selected>CC Hold</option><option>Note Hold</option></select></div>
+          <div class="side-item"><span class="k">SW 2</span><select class="select wide"><option selected>Bank Down</option><option>CC Hold</option><option>Bank Up</option></select></div>
+          <div class="side-item"><span class="k">SW 5</span><select class="select wide"><option selected>Bank Up</option><option>CC Hold</option><option>Bank Down</option></select></div>
+          <div class="side-item"><span class="k">SW 3</span><select class="select wide"><option selected>CC Hold</option><option>Note Hold</option></select></div>
+          <div class="side-item"><span class="k">SW 6</span><select class="select wide"><option selected>CC Hold</option></select></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════ RIGHT COLUMN ═══════════ -->
+    <section class="col right">
+      <!-- Hero row: ring + number + meta -->
+      <div class="hero-row">
+        <div class="hero-ring" id="hero"></div>
+        <div class="hero-title">
+          <div class="hero-num" id="t-num">05</div>
+          <div class="hero-meta">
+            <span class="hero-kicker" id="t-kicker">Encoder · Bank 1</span>
+            <span class="hero-ref"><span class="pip" id="t-pip"></span><span id="t-ref">CC 25 · Ch 01</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings grid -->
+      <div class="settings">
+        <!-- TURN -->
+        <div class="sec">
+          <div class="sec-head"><span class="lab">Turn · Rotate</span></div>
+          <div class="field">
+            <label>MIDI Type</label>
+            <div class="ctl">
+              <select class="select wide">
+                <option>Note</option>
+                <option selected>CC</option>
+                <option>Relative Enc</option>
+                <option>Switch Vel</option>
+                <option>Rel Mouse Drag</option>
+                <option>Rel Mouse Scroll</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label>Channel</label>
+            <div class="ctl"><input class="input" value="1"></div>
+          </div>
+          <div class="field">
+            <label>Number</label>
+            <div class="ctl"><input class="input" value="25"></div>
+          </div>
+          <div class="field">
+            <label>Movement</label>
+            <div class="ctl">
+              <div class="seg">
+                <button class="active">Direct</button>
+                <button>Resp</button>
+                <button>Vel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PRESS -->
+        <div class="sec">
+          <div class="sec-head"><span class="lab">Press · Switch</span></div>
+          <div class="field">
+            <label>MIDI Type</label>
+            <div class="ctl">
+              <select class="select wide">
+                <option selected>Note</option>
+                <option>CC</option>
+                <option>Relative Enc</option>
+                <option>Switch Vel</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label>Channel</label>
+            <div class="ctl"><input class="input" value="1"></div>
+          </div>
+          <div class="field">
+            <label>Number</label>
+            <div class="ctl"><input class="input" value="65"></div>
+          </div>
+          <div class="field">
+            <label>Action</label>
+            <div class="ctl">
+              <select class="select wide">
+                <option>CC Hold</option>
+                <option>CC Toggle</option>
+                <option selected>Note Hold</option>
+                <option>Note Toggle</option>
+                <option>Reset Value</option>
+                <option>Fine Adjust</option>
+                <option>Shift Hold</option>
+                <option>Shift Toggle</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- DISPLAY & BEHAVIOR -->
+        <div class="sec full">
+          <div class="sec-head"><span class="lab">Display &amp; Behavior</span></div>
+          <div class="field">
+            <label>Indicator</label>
+            <div class="ctl">
+              <div class="seg">
+                <button>Dot</button>
+                <button>Bar</button>
+                <button class="active">Blend Bar</button>
+                <button>Blend Dot</button>
+              </div>
+            </div>
+          </div>
+          <div class="db-inline">
+            <div class="item">
+              <label>Detent</label>
+              <div class="toggle"></div>
+              <span class="toggle-label">Off</span>
+            </div>
+            <div class="sep"></div>
+            <div class="item">
+              <label>Super Knob</label>
+              <div class="toggle"></div>
+              <span class="toggle-label">Off</span>
+            </div>
+            <div class="sep"></div>
+            <div class="item">
+              <label>Shift Ch</label>
+              <input class="input tiny" value="4">
+            </div>
+          </div>
+        </div>
+
+        <!-- COLORS -->
+        <div class="sec full">
+          <div class="sec-head">
+            <span class="lab">Colors</span>
+            <span class="meta">Click a slot to pick from palette</span>
+          </div>
+          <div class="colors-wrap">
+            <div class="colors" id="colors">
+              <div class="csw editing" data-target="active">
+                <div class="chip" id="c-active" style="background: #17c0eb"></div>
+                <div class="meta">
+                  <span class="lbl">Active</span>
+                  <span class="idx" id="c-active-idx">78</span>
+                </div>
+              </div>
+              <div class="csw" data-target="inactive">
+                <div class="chip" id="c-inactive" style="background: #1a1a1e"></div>
+                <div class="meta">
+                  <span class="lbl">Inactive</span>
+                  <span class="idx" id="c-inactive-idx">113</span>
+                </div>
+              </div>
+              <div class="csw" data-target="detent">
+                <div class="chip" id="c-detent" style="background: #ff6b00"></div>
+                <div class="meta">
+                  <span class="lbl">Detent</span>
+                  <span class="idx" id="c-detent-idx">63</span>
+                </div>
+              </div>
+            </div>
+            <!-- Popover palette -->
+            <div class="pop" id="pop">
+              <div class="pop-head">
+                <span id="pop-title">Editing Active color</span>
+                <span class="val" id="pop-val">#17C0EB · 78</span>
+              </div>
+              <div class="pop-grid" id="pop-grid"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ─────── Bottom bar ─────── -->
+  <footer class="bottom">
+    <span class="sync-meta">Last sync · 2 min ago</span>
+    <div class="spacer"></div>
+    <button class="sync-btn">Sync with Device</button>
+  </footer>
+</div>
+
+<script>
+  // ────────── Data ──────────
+  let focusIdx = 4;
+  const selection = new Set([4]);
+
+  const encoders = [
+    { active: "#ff3838", inactive: "#1a1a1e", detent: "#ff6b00", value: 90,  disp: "BLENDED_BAR", hasDetent: false, cc: 21 },
+    { active: "#ff6b35", inactive: "#1a1a1e", detent: "#ff6b00", value: 64,  disp: "BLENDED_BAR", hasDetent: true,  cc: 22 },
+    { active: "#ffa502", inactive: "#1a1a1e", detent: "#ff6b00", value: 50,  disp: "BLENDED_BAR", hasDetent: true,  cc: 23 },
+    { active: "#eccc68", inactive: "#1a1a1e", detent: "#ffffff", value: 64,  disp: "BLENDED_DOT", hasDetent: true,  cc: 24 },
+    { active: "#17c0eb", inactive: "#1a1a1e", detent: "#ff6b00", value: 90,  disp: "BLENDED_BAR", hasDetent: false, cc: 25 },
+    { active: "#2ed573", inactive: "#1a1a1e", detent: "#ff6b00", value: 64,  disp: "BLENDED_BAR", hasDetent: true,  cc: 26 },
+    { active: "#7bed9f", inactive: "#1a1a1e", detent: "#ff6b00", value: 50,  disp: "BLENDED_BAR", hasDetent: true,  cc: 27 },
+    { active: "#18dcff", inactive: "#1a1a1e", detent: "#ffffff", value: 64,  disp: "BLENDED_DOT", hasDetent: true,  cc: 28 },
+    { active: "#3742fa", inactive: "#1a1a1e", detent: "#ff6b00", value: 30,  disp: "BAR",         hasDetent: false, cc: 29 },
+    { active: "#5352ed", inactive: "#1a1a1e", detent: "#ff6b00", value: 40,  disp: "BAR",         hasDetent: false, cc: 30 },
+    { active: "#a55eea", inactive: "#1a1a1e", detent: "#ff6b00", value: 25,  disp: "BAR",         hasDetent: false, cc: 31 },
+    { active: "#c44569", inactive: "#1a1a1e", detent: "#ff6b00", value: 35,  disp: "BAR",         hasDetent: false, cc: 32 },
+    { active: "#ffffff", inactive: "#1a1a1e", detent: "#ff6b00", value: 100, disp: "BLENDED_BAR", hasDetent: false, cc: 33 },
+    { active: "#ffffff", inactive: "#1a1a1e", detent: "#ff6b00", value: 100, disp: "BLENDED_BAR", hasDetent: false, cc: 34 },
+    { active: "#ff9f43", inactive: "#1a1a1e", detent: "#ff6b00", value: 80,  disp: "DOT",         hasDetent: false, cc: 35 },
+    { active: "#ff3838", inactive: "#1a1a1e", detent: "#ff6b00", value: 115, disp: "BLENDED_BAR", hasDetent: false, cc: 36 },
+  ];
+
+  // ────────── Helpers ──────────
+  const hex = (h) => {
+    const n = parseInt(h.replace("#", ""), 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  };
+  const rgb = ([r, g, b]) => `rgb(${r},${g},${b})`;
+  const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+  const NUM_LEDS = 11;
+  const START_ANGLE = 225;
+  const SWEEP = 270;
+
+  function ledPositions(cx, cy, r) {
+    const out = [];
+    for (let i = 0; i < NUM_LEDS; i++) {
+      const a = START_ANGLE - (i / (NUM_LEDS - 1)) * SWEEP;
+      const rad = (a * Math.PI) / 180;
+      out.push({ x: cx + r * Math.cos(rad), y: cy - r * Math.sin(rad) });
+    }
+    return out;
+  }
+
+  function ledColors(enc) {
+    const a = hex(enc.active);
+    const i0 = hex(enc.inactive);
+    const frac = clamp(enc.value / 127, 0, 1);
+    const lit = Math.round(frac * (NUM_LEDS - 1));
+    const out = [];
+    for (let i = 0; i < NUM_LEDS; i++) {
+      let c;
+      if (enc.disp === "BAR") c = i <= lit ? a : i0;
+      else if (enc.disp === "DOT") c = i === lit ? a : i0;
+      else if (enc.disp === "BLENDED_BAR") {
+        if (i <= lit) c = mix(i0, a, lit === 0 ? 1 : i / lit);
+        else c = i0;
+      } else {
+        const t = Math.max(0, 1 - Math.abs(i - lit) / 3);
+        c = mix(i0, a, t);
+      }
+      out.push(c);
+    }
+    return out;
+  }
+
+  // Compact encoder for the chassis grid
+  function renderSmallEnc(enc) {
+    const cx = 50, cy = 50;
+    const leds = ledPositions(cx, cy, 36);
+    const colors = ledColors(enc);
+    const frac = clamp(enc.value / 127, 0, 1);
+    const ang = -135 + frac * 270;
+    let dots = "";
+    for (let i = 0; i < leds.length; i++) {
+      const lit = colors[i][0] + colors[i][1] + colors[i][2] > 90;
+      dots += `<circle cx="${leds[i].x.toFixed(1)}" cy="${leds[i].y.toFixed(1)}" r="${lit ? 2.6 : 1.6}" fill="${lit ? rgb(colors[i]) : '#1a1a1d'}"/>`;
+    }
+    return `
+      <svg viewBox="0 0 100 100">
+        <circle cx="${cx}" cy="${cy}" r="25" fill="#08080a" stroke="#17171b" stroke-width="1"/>
+        <circle cx="${cx}" cy="${cy}" r="22" fill="none" stroke="#111116" stroke-width="0.6"/>
+        ${dots}
+        <g transform="rotate(${ang.toFixed(1)} ${cx} ${cy})">
+          <line x1="${cx}" y1="${cy - 16}" x2="${cx}" y2="${cy - 23}" stroke="${enc.active}" stroke-width="1.6" stroke-linecap="round"/>
+        </g>
+      </svg>
+    `;
+  }
+
+  // Hero encoder — value in the center, no radial pointer
+  function renderHeroEnc(enc) {
+    const cx = 100, cy = 100;
+    const leds = ledPositions(cx, cy, 80);
+    const colors = ledColors(enc);
+    let dots = "";
+    for (let i = 0; i < leds.length; i++) {
+      const lit = colors[i][0] + colors[i][1] + colors[i][2] > 90;
+      const r = lit ? 5.5 : 2.6;
+      dots += `<circle cx="${leds[i].x.toFixed(1)}" cy="${leds[i].y.toFixed(1)}" r="${r}" fill="${lit ? rgb(colors[i]) : '#17171b'}"${lit ? ' filter="url(#hero-glow)"' : ''}/>`;
+    }
+    return `
+      <svg viewBox="0 0 200 200">
+        <defs>
+          <filter id="hero-glow" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="2" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <circle cx="${cx}" cy="${cy}" r="54" fill="#0a0a0d" stroke="#1a1a1d" stroke-width="1"/>
+        <circle cx="${cx}" cy="${cy}" r="48" fill="none" stroke="#141418" stroke-width="0.8"/>
+        ${dots}
+        <text x="${cx}" y="${cy - 3}" text-anchor="middle"
+              font-family="IBM Plex Mono, monospace" font-size="48" font-weight="500"
+              fill="#f5f5f7" letter-spacing="-1">${enc.value}</text>
+        <text x="${cx}" y="${cy + 20}" text-anchor="middle"
+              font-family="IBM Plex Mono, monospace" font-size="11"
+              fill="#6c6d76" letter-spacing="1.2">/ 127</text>
+      </svg>
+    `;
+  }
+
+  // ────────── Render ──────────
+  function render() {
+    const grid = document.getElementById("grid");
+    grid.innerHTML = encoders
+      .map((e, i) => {
+        const cls = [
+          "enc",
+          i === focusIdx ? "focus" : "",
+          selection.has(i) && i !== focusIdx ? "multi" : "",
+          selection.has(i) && i === focusIdx ? "multi" : "",
+        ].filter(Boolean).join(" ");
+        return `<div class="${cls}" data-idx="${i}">
+             <div class="num">${String(i + 1).padStart(2, "0")}</div>
+             ${e.hasDetent ? '<div class="det-mark"></div>' : ""}
+             ${renderSmallEnc(e)}
+           </div>`;
+      })
+      .join("");
+    document.querySelectorAll(".enc").forEach((el) => {
+      el.addEventListener("pointerdown", onEncPointerDown);
+      el.addEventListener("pointermove", onEncPointerMove);
+      el.addEventListener("pointerup", onEncPointerUp);
+      el.addEventListener("pointercancel", onEncPointerUp);
+    });
+  }
+
+  function renderEncoderAt(idx) {
+    const el = document.querySelector(`.enc[data-idx="${idx}"]`);
+    if (!el) return;
+    const e = encoders[idx];
+    el.innerHTML = `
+      <div class="num">${String(idx + 1).padStart(2, "0")}</div>
+      ${e.hasDetent ? '<div class="det-mark"></div>' : ""}
+      ${renderSmallEnc(e)}
+    `;
+  }
+
+  function updateFocus() {
+    const e = encoders[focusIdx];
+    document.getElementById("t-num").textContent = String(focusIdx + 1).padStart(2, "0");
+    document.getElementById("t-pip").style.background = e.active;
+    document.getElementById("t-pip").style.color = e.active;
+    document.getElementById("t-ref").textContent = `CC ${e.cc} · Ch 01`;
+    document.getElementById("hero").innerHTML = renderHeroEnc(e);
+    document.getElementById("c-active").style.background = e.active;
+    document.getElementById("c-inactive").style.background = e.inactive;
+    document.getElementById("c-detent").style.background = e.detent;
+  }
+
+  function updateSelectionUi() {
+    const n = selection.size;
+    document.getElementById("sel-count").textContent = `${n} selected`;
+    const kicker = document.getElementById("t-kicker");
+    if (n > 1) {
+      kicker.textContent = `Multi-edit · ${n} encoders · Bank 1`;
+    } else {
+      kicker.textContent = `Encoder · Bank 1`;
+    }
+  }
+
+  // ────────── Drag-to-twist ──────────
+  let dragState = null;
+  const DRAG_SENSITIVITY = 0.7;
+  const DRAG_FINE = 0.15;
+  const DRAG_THRESHOLD = 3;
+
+  function onEncPointerDown(e) {
+    if (e.button !== 0) return;
+    const el = e.currentTarget;
+    const idx = parseInt(el.dataset.idx, 10);
+    e.preventDefault();
+    try { el.setPointerCapture(e.pointerId); } catch (_) {}
+    dragState = {
+      idx,
+      startY: e.clientY,
+      startValue: encoders[idx].value,
+      moved: false,
+      modKey: e.metaKey || e.ctrlKey,
+      shiftKey: e.shiftKey,
+    };
+    el.classList.add("dragging");
+  }
+
+  function onEncPointerMove(e) {
+    if (!dragState) return;
+    const dy = dragState.startY - e.clientY;
+    if (Math.abs(dy) > DRAG_THRESHOLD) dragState.moved = true;
+    if (!dragState.moved) return;
+    const sens = e.shiftKey ? DRAG_FINE : DRAG_SENSITIVITY;
+    const v = clamp(Math.round(dragState.startValue + dy * sens), 0, 127);
+    encoders[dragState.idx].value = v;
+    renderEncoderAt(dragState.idx);
+    if (dragState.idx === focusIdx) updateFocus();
+  }
+
+  function onEncPointerUp(e) {
+    if (!dragState) return;
+    const el = e.currentTarget;
+    try { el.releasePointerCapture(e.pointerId); } catch (_) {}
+    el.classList.remove("dragging");
+    const { moved, idx, modKey, shiftKey } = dragState;
+    dragState = null;
+    if (!moved) handleEncoderClick(idx, { metaKey: modKey, ctrlKey: modKey, shiftKey });
+  }
+
+  window.addEventListener("blur", () => {
+    if (!dragState) return;
+    const el = document.querySelector(`.enc[data-idx="${dragState.idx}"]`);
+    if (el) el.classList.remove("dragging");
+    dragState = null;
+  });
+
+  // ────────── Selection / click handling ──────────
+  function handleEncoderClick(idx, mods) {
+    if (mods.metaKey || mods.ctrlKey) {
+      if (selection.has(idx)) {
+        if (selection.size > 1) selection.delete(idx);
+      } else {
+        selection.add(idx);
+      }
+      if (selection.has(idx)) focusIdx = idx;
+      else if (selection.size > 0) focusIdx = Array.from(selection)[0];
+    } else if (mods.shiftKey) {
+      const from = Math.min(focusIdx, idx);
+      const to = Math.max(focusIdx, idx);
+      for (let i = from; i <= to; i++) selection.add(i);
+      focusIdx = idx;
+    } else {
+      selection.clear();
+      selection.add(idx);
+      focusIdx = idx;
+    }
+    render();
+    updateFocus();
+    updateSelectionUi();
+  }
+
+  // ────────── Select all / none / invert ──────────
+  function selAll() {
+    selection.clear();
+    for (let i = 0; i < 16; i++) selection.add(i);
+    render();
+    updateSelectionUi();
+  }
+  function selNone() {
+    selection.clear();
+    selection.add(focusIdx);
+    render();
+    updateSelectionUi();
+  }
+  document.getElementById("sel-all").addEventListener("click", (e) => { e.preventDefault(); selAll(); });
+  document.getElementById("sel-none").addEventListener("click", (e) => { e.preventDefault(); selNone(); });
+
+  // ────────── Color picker popover ──────────
+  let pickerTarget = null;
+
+  function setEditingCsw(target) {
+    document.querySelectorAll(".csw").forEach((el) => {
+      el.classList.toggle("editing", el.dataset.target === target);
+    });
+  }
+
+  function openPop(target) {
+    pickerTarget = target;
+    setEditingCsw(target);
+    const pop = document.getElementById("pop");
+    pop.classList.add("open");
+    const nice = target[0].toUpperCase() + target.slice(1);
+    document.getElementById("pop-title").textContent = `Editing ${nice} color`;
+    // Anchor the popover left-edge to the clicked swatch
+    const sw = document.querySelector(`.csw[data-target="${target}"]`);
+    if (sw && sw.parentElement) {
+      const swRect = sw.getBoundingClientRect();
+      const wrapRect = sw.parentElement.getBoundingClientRect();
+      pop.style.left = `${swRect.left - wrapRect.left}px`;
+    }
+  }
+
+  function closePop() {
+    pickerTarget = null;
+    document.getElementById("pop").classList.remove("open");
+    setEditingCsw("active");
+  }
+
+  document.querySelectorAll(".csw").forEach((sw) => {
+    sw.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const target = sw.dataset.target;
+      if (pickerTarget === target) closePop();
+      else openPop(target);
+    });
+  });
+
+  document.addEventListener("click", (e) => {
+    const pop = document.getElementById("pop");
+    if (!pop.contains(e.target)) closePop();
+  });
+
+  document.getElementById("pop").addEventListener("click", (e) => e.stopPropagation());
+
+  function renderPopoverGrid() {
+    const g = document.getElementById("pop-grid");
+    let out = "";
+    for (let i = 0; i < 128; i++) {
+      const hue = (i / 128) * 340;
+      const c = `hsl(${hue}, 88%, 55%)`;
+      const sel = i === 78 ? " selected" : "";
+      out += `<div class="pop-chip${sel}" style="background:${c}" data-idx="${i}"></div>`;
+    }
+    g.innerHTML = out;
+  }
+
+  // ────────── Init ──────────
+  render();
+  renderPopoverGrid();
+  updateFocus();
+  updateSelectionUi();
+</script>
+</body>
+</html>
