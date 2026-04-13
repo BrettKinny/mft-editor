@@ -695,6 +695,135 @@
     background: var(--surface-hover);
     border-color: rgba(255, 255, 255, 0.28);
   }
+
+  /* ─────────────── OVERFLOW MENU ─────────────── */
+  .overflow-wrap {
+    position: relative;
+  }
+  .overflow-btn {
+    background: transparent;
+    border: 0;
+    color: var(--text-dim);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 120ms;
+    font-family: var(--sans);
+  }
+  .overflow-btn:hover {
+    color: var(--text);
+    background: var(--surface-hover);
+  }
+  .overflow-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 6px);
+    background: #0b0b0e;
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    padding: 4px;
+    z-index: 30;
+    min-width: 168px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+  }
+  .overflow-menu.open {
+    display: block;
+  }
+  .overflow-item {
+    display: block;
+    width: 100%;
+    background: transparent;
+    border: 0;
+    color: var(--text);
+    padding: 7px 12px;
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 120ms;
+  }
+  .overflow-item:hover { background: var(--surface-hover); }
+
+  /* ─────────────── MODAL ─────────────── */
+  .modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.72);
+    backdrop-filter: blur(2px);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: #0b0b0e;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 24px 26px;
+    max-width: 460px;
+    width: 100%;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+  }
+  .modal h2 {
+    margin: 0 0 14px;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+  .modal-body p {
+    margin: 0 0 12px;
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+  .modal-body p:last-child { margin-bottom: 0; }
+  .modal-body strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 22px;
+  }
+  .btn-neutral,
+  .btn-danger {
+    padding: 8px 18px;
+    border-radius: 4px;
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 150ms;
+    border: 1px solid;
+  }
+  .btn-neutral {
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.18);
+    color: var(--text);
+  }
+  .btn-neutral:hover {
+    background: var(--surface-hover);
+    border-color: rgba(255, 255, 255, 0.28);
+  }
+  .btn-danger {
+    background: transparent;
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #ef4444;
+  }
+  .btn-danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.6);
+  }
 </style>
 </head>
 <body>
@@ -711,6 +840,12 @@
     </div>
     <div class="t-spacer"></div>
     <span class="status"><span class="dot"></span>USB · Connected</span>
+    <div class="overflow-wrap">
+      <button class="overflow-btn" id="overflow-btn" aria-label="More options" title="More options">⋯</button>
+      <div class="overflow-menu" id="overflow-menu">
+        <button class="overflow-item" id="open-reset">Factory Reset Device…</button>
+      </div>
+    </div>
   </header>
 
   <main>
@@ -961,6 +1096,21 @@
     <div class="spacer"></div>
     <button class="sync-btn">Sync with Device</button>
   </footer>
+</div>
+
+<!-- ─────── Factory Reset modal ─────── -->
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal" role="dialog" aria-labelledby="modal-title" aria-modal="true">
+    <h2 id="modal-title">Factory Reset</h2>
+    <div class="modal-body">
+      <p>This will reset <strong>all settings</strong> on the connected device to factory defaults — encoder mappings, colours, banks, side switches, and global settings.</p>
+      <p>Your current editor state won't be touched, but the hardware will lose whatever is on it right now. This cannot be undone from the editor.</p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-neutral" id="modal-cancel">Cancel</button>
+      <button class="btn-danger" id="modal-confirm">Confirm Reset</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -1299,6 +1449,46 @@
     }
     g.innerHTML = out;
   }
+
+  // ────────── Overflow menu + Factory Reset modal ──────────
+  const overflowBtn = document.getElementById("overflow-btn");
+  const overflowMenu = document.getElementById("overflow-menu");
+  const modalBackdrop = document.getElementById("modal-backdrop");
+
+  overflowBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    overflowMenu.classList.toggle("open");
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!overflowMenu.contains(e.target) && e.target !== overflowBtn) {
+      overflowMenu.classList.remove("open");
+    }
+  });
+
+  document.getElementById("open-reset").addEventListener("click", () => {
+    overflowMenu.classList.remove("open");
+    modalBackdrop.classList.add("open");
+  });
+
+  document.getElementById("modal-cancel").addEventListener("click", () => {
+    modalBackdrop.classList.remove("open");
+  });
+  document.getElementById("modal-confirm").addEventListener("click", () => {
+    modalBackdrop.classList.remove("open");
+    // real implementation would send buildSystemFactoryReset() over Web MIDI
+  });
+
+  modalBackdrop.addEventListener("click", (e) => {
+    if (e.target === modalBackdrop) modalBackdrop.classList.remove("open");
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      modalBackdrop.classList.remove("open");
+      overflowMenu.classList.remove("open");
+    }
+  });
 
   // ────────── Init ──────────
   render();

@@ -16,7 +16,6 @@ export const CMD_PULL_CONF = 0x02;
 export const CMD_SYSTEM = 0x03;
 export const CMD_BULK_XFER = 0x04;
 
-export const SYS_BOOTLOADER = 0x01;
 export const SYS_FACTORY_RESET = 0x02;
 
 export const BULK_PUSH = 0x00;
@@ -179,10 +178,6 @@ export function parseEncoderPayload(payload: readonly number[]): EncoderConfig {
 // ---------------------------------------------------------------------------
 // System commands
 // ---------------------------------------------------------------------------
-
-export function buildSystemBootloader(): number[] {
-  return [...header(CMD_SYSTEM), SYS_BOOTLOADER];
-}
 
 export function buildSystemFactoryReset(): number[] {
   return [...header(CMD_SYSTEM), SYS_FACTORY_RESET];

@@ -13,7 +13,6 @@ from PySide6.QtWidgets import (
 )
 
 from ..model.config import DeviceConfig, NUM_ENCODERS, NUM_BANKS
-from ..midi.mock import MockDevice
 from ..midi.device import find_mft_ports, RealDevice, pull_device_config, push_device_config
 from ..midi import sysex
 from ..io.preset_file import export_config, import_config
@@ -44,8 +43,6 @@ class MainWindow(QMainWindow):
         self._build_ui()
         self._build_statusbar()
 
-        # Start in mock mode
-        self._connect_mock()
         self._refresh_ui()
 
     # ------------------------------------------------------------------
@@ -76,19 +73,11 @@ class MainWindow(QMainWindow):
         factory_act.triggered.connect(self._on_factory_reset)
         tools_menu.addAction(factory_act)
 
-        bootloader_act = QAction("Enter &Bootloader", self)
-        bootloader_act.triggered.connect(self._on_bootloader)
-        tools_menu.addAction(bootloader_act)
-
         device_menu = menu.addMenu("&Device")
 
         connect_act = QAction("&Connect to Device", self)
         connect_act.triggered.connect(self._on_connect)
         device_menu.addAction(connect_act)
-
-        mock_act = QAction("Use &Mock Device", self)
-        mock_act.triggered.connect(self._connect_mock)
-        device_menu.addAction(mock_act)
 
         pull_act = QAction("&Pull Config from Device", self)
         pull_act.triggered.connect(self._on_pull)
@@ -175,12 +164,6 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------------
     # Device connection
     # ------------------------------------------------------------------
-
-    def _connect_mock(self):
-        mock = MockDevice(self._config.copy())
-        self._device = mock
-        self._device_label.setText(f"Connected: {mock.name}")
-        self._status.showMessage("Using mock device (offline mode)", 3000)
 
     @Slot()
     def _on_connect(self):
@@ -324,17 +307,6 @@ class MainWindow(QMainWindow):
         if reply == QMessageBox.StandardButton.Yes and self._device:
             self._device.send(sysex.build_system_factory_reset())
             self._status.showMessage("Factory reset sent", 3000)
-
-    @Slot()
-    def _on_bootloader(self):
-        reply = QMessageBox.question(
-            self, "Enter Bootloader",
-            "This will put the device into bootloader mode for firmware updates.\n\nContinue?",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-        )
-        if reply == QMessageBox.StandardButton.Yes and self._device:
-            self._device.send(sysex.build_system_bootloader())
-            self._status.showMessage("Bootloader mode activated", 3000)
 
     # ------------------------------------------------------------------
     # Refresh

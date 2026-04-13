@@ -4,7 +4,6 @@ import pytest
 from mft_editor.model.config import EncoderConfig, GlobalConfig, DeviceConfig
 from mft_editor.model.enums import DisplayType, EncMoveType, EncSwActionType, MidiType
 from mft_editor.midi import sysex
-from mft_editor.midi.mock import MockDevice
 
 
 class TestGlobalConfigRoundTrip:
@@ -164,13 +163,6 @@ class TestSystemCommands:
         assert cmd == sysex.CMD_SYSTEM
         assert data[0] == sysex.SYS_FACTORY_RESET
 
-    def test_bootloader_format(self):
-        msg = sysex.build_system_bootloader()
-        result = sysex.identify_message(msg)
-        cmd, data = result
-        assert cmd == sysex.CMD_SYSTEM
-        assert data[0] == sysex.SYS_BOOTLOADER
-
 
 class TestPullGlobal:
     def test_pull_global_format(self):
@@ -180,45 +172,6 @@ class TestPullGlobal:
         cmd, data = result
         assert cmd == sysex.CMD_PULL_CONF
         assert data[0] == 0x00
-
-
-class TestMockDevice:
-    def test_pull_global_config(self):
-        dev = MockDevice()
-        dev.send(sysex.build_pull_global())
-        resp = dev.receive()
-        assert resp is not None
-        result = sysex.identify_message(resp)
-        assert result[0] == sysex.CMD_PUSH_CONF
-
-    def test_pull_encoder_config(self):
-        dev = MockDevice()
-        dev.send(sysex.build_bulk_pull_encoder(0, 0))
-        responses = dev.receive_all()
-        assert len(responses) >= 1
-
-    def test_push_and_pull_encoder(self):
-        dev = MockDevice()
-        cfg = EncoderConfig(active_color=99, encoder_midi_number=42)
-        msgs = sysex.build_bulk_push_encoder(1, 3, cfg)
-        for msg in msgs:
-            dev.send(msg)
-
-        # Now pull it back
-        dev.send(sysex.build_bulk_pull_encoder(1, 3))
-        responses = dev.receive_all()
-        payload = []
-        for resp in responses:
-            result = sysex.identify_message(resp)
-            if result and result[0] == sysex.CMD_BULK_XFER:
-                data = result[1]
-                if len(data) >= 5:
-                    size = data[4]
-                    payload.extend(data[5:5 + size])
-
-        parsed = sysex.parse_encoder_payload(payload)
-        assert parsed.active_color == 99
-        assert parsed.encoder_midi_number == 42
 
 
 class TestIdentifyMessage:

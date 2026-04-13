@@ -18,13 +18,11 @@ import {
   CMD_PULL_CONF,
   CMD_PUSH_CONF,
   CMD_SYSTEM,
-  SYS_BOOTLOADER,
   SYS_FACTORY_RESET,
   buildBulkPullEncoder,
   buildBulkPushEncoder,
   buildPullGlobal,
   buildPushGlobal,
-  buildSystemBootloader,
   buildSystemFactoryReset,
   encoderTag,
   identifyMessage,
@@ -190,13 +188,6 @@ describe('System commands', () => {
     const result = identifyMessage(msg)!;
     expect(result.command).toBe(CMD_SYSTEM);
     expect(result.payload[0]).toBe(SYS_FACTORY_RESET);
-  });
-
-  it('bootloader format', () => {
-    const msg = buildSystemBootloader();
-    const result = identifyMessage(msg)!;
-    expect(result.command).toBe(CMD_SYSTEM);
-    expect(result.payload[0]).toBe(SYS_BOOTLOADER);
   });
 });
 

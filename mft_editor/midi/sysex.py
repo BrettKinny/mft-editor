@@ -19,7 +19,6 @@ CMD_SYSTEM = 0x03
 CMD_BULK_XFER = 0x04
 
 # System sub-commands
-SYS_BOOTLOADER = 0x01
 SYS_FACTORY_RESET = 0x02
 
 # Bulk transfer sub-commands
@@ -208,11 +207,6 @@ def parse_encoder_payload(payload: list[int]) -> EncoderConfig:
 # ---------------------------------------------------------------------------
 # System commands
 # ---------------------------------------------------------------------------
-
-def build_system_bootloader() -> list[int]:
-    """Build SYSTEM command to enter bootloader."""
-    return _header(CMD_SYSTEM) + [SYS_BOOTLOADER]
-
 
 def build_system_factory_reset() -> list[int]:
     """Build SYSTEM command to factory reset."""

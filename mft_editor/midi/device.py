@@ -20,7 +20,7 @@ SYSEX_END = 0xF7
 
 
 class MidiTransport(Protocol):
-    """Protocol for MIDI send/receive (real or mock)."""
+    """Protocol for MIDI send/receive."""
     name: str
     firmware_version: str
     connected: bool
