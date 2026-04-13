@@ -1,0 +1,17 @@
+{
+  "name": "MFT Editor",
+  "short_name": "MFT Editor",
+  "description": "Configure the DJ Tech Tools MIDI Fighter Twister via Web MIDI.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a1d",
+  "theme_color": "#4fc3dc",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
