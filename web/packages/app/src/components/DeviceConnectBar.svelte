@@ -106,6 +106,9 @@
   <div class="brand">
     <h1>MFT Editor</h1>
     <span class="subtitle">web</span>
+    <span class="experimental" title="Web build is experimental — features and behaviour may change">
+      Experimental
+    </span>
   </div>
 
   <div class="status">
@@ -171,6 +174,18 @@
     color: var(--fg-muted);
     text-transform: uppercase;
     letter-spacing: 0.1em;
+  }
+
+  .experimental {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--warning);
+    border: 1px solid var(--warning);
+    padding: 2px 6px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    line-height: 1;
   }
 
   .status {

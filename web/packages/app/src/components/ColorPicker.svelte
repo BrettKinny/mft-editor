@@ -13,12 +13,22 @@
   let { active, inactive, detent, onchange }: Props = $props();
 
   let mode = $state<Mode>('active');
+  let isOpen = $state(false);
 
   const currentForMode = $derived.by(() => {
     if (mode === 'active') return active;
     if (mode === 'inactive') return inactive;
     return detent;
   });
+
+  function toggleMode(target: Mode): void {
+    if (isOpen && mode === target) {
+      isOpen = false;
+    } else {
+      mode = target;
+      isOpen = true;
+    }
+  }
 
   function selectColor(index: number): void {
     onchange(mode, index);
@@ -32,8 +42,9 @@
     <button
       type="button"
       class="mode"
-      class:active={mode === 'active'}
-      onclick={() => (mode = 'active')}
+      class:open={isOpen && mode === 'active'}
+      aria-expanded={isOpen && mode === 'active'}
+      onclick={() => toggleMode('active')}
     >
       <span class="swatch" style={`background: ${colorToHex(active)}`}></span>
       <span class="label">Active</span>
@@ -41,8 +52,9 @@
     <button
       type="button"
       class="mode"
-      class:active={mode === 'inactive'}
-      onclick={() => (mode = 'inactive')}
+      class:open={isOpen && mode === 'inactive'}
+      aria-expanded={isOpen && mode === 'inactive'}
+      onclick={() => toggleMode('inactive')}
     >
       <span class="swatch" style={`background: ${colorToHex(inactive)}`}></span>
       <span class="label">Inactive</span>
@@ -50,27 +62,30 @@
     <button
       type="button"
       class="mode"
-      class:active={mode === 'detent'}
-      onclick={() => (mode = 'detent')}
+      class:open={isOpen && mode === 'detent'}
+      aria-expanded={isOpen && mode === 'detent'}
+      onclick={() => toggleMode('detent')}
     >
       <span class="swatch" style={`background: ${colorToHex(detent)}`}></span>
       <span class="label">Detent</span>
     </button>
   </div>
 
-  <div class="palette">
-    {#each paletteIndices as idx}
-      <button
-        type="button"
-        class="cell"
-        class:selected={currentForMode === idx}
-        style={`background: ${colorToHex(idx)}`}
-        title={`Color ${idx}`}
-        onclick={() => selectColor(idx)}
-        aria-label={`Color ${idx}`}
-      ></button>
-    {/each}
-  </div>
+  {#if isOpen}
+    <div class="palette">
+      {#each paletteIndices as idx}
+        <button
+          type="button"
+          class="cell"
+          class:selected={currentForMode === idx}
+          style={`background: ${colorToHex(idx)}`}
+          title={`Color ${idx}`}
+          onclick={() => selectColor(idx)}
+          aria-label={`Color ${idx}`}
+        ></button>
+      {/each}
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -99,7 +114,7 @@
     color: var(--fg-dim);
   }
 
-  .mode.active {
+  .mode.open {
     background: var(--bg-hover);
     border-color: var(--fg-muted);
     color: var(--fg);
