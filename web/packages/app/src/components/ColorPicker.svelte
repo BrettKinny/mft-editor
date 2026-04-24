@@ -14,6 +14,7 @@
 
   let mode = $state<Mode>('active');
   let isOpen = $state(false);
+  let pickerEl: HTMLDivElement | undefined = $state();
 
   const currentForMode = $derived.by(() => {
     if (mode === 'active') return active;
@@ -34,10 +35,31 @@
     onchange(mode, index);
   }
 
+  $effect(() => {
+    if (!isOpen) return;
+
+    function onPointerDown(event: PointerEvent): void {
+      if (pickerEl && !pickerEl.contains(event.target as Node)) {
+        isOpen = false;
+      }
+    }
+
+    function onKeyDown(event: KeyboardEvent): void {
+      if (event.key === 'Escape') isOpen = false;
+    }
+
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  });
+
   const paletteIndices = Array.from({ length: COLOR_MAP.length }, (_, i) => i);
 </script>
 
-<div class="picker">
+<div class="picker" bind:this={pickerEl}>
   <div class="modes">
     <button
       type="button"
