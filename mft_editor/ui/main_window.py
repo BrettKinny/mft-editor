@@ -203,6 +203,14 @@ class MainWindow(QMainWindow):
     def _on_push(self):
         if self._device is None:
             return
+        reply = QMessageBox.question(
+            self, "Push to Device",
+            "This will overwrite ALL 64 encoders and global settings on the device.\n\n"
+            "Continue?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+        )
+        if reply != QMessageBox.StandardButton.Yes:
+            return
         self._status.showMessage("Sending configuration to device...")
         try:
             push_device_config(self._device, self._config)

@@ -61,6 +61,10 @@
   async function push(): Promise<void> {
     const transport = connectionStore.transport;
     if (!transport) return;
+    const ok = window.confirm(
+      'Push will overwrite ALL 64 encoders and global settings on the device. Continue?',
+    );
+    if (!ok) return;
     connectionStore.setBusy(true);
     try {
       await pushDeviceConfig(transport, configStore.config);

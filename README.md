@@ -4,6 +4,18 @@ A Linux-first editor for the [DJ Tech Tools MIDI Fighter Twister](https://store.
 
 ![MFT Editor](docs/screenshot.png)
 
+> ## ⚠️ v0.1 — early tester release
+>
+> This is an **early-tester release**. Expect rough edges, missing polish, and the occasional bug.
+>
+> - **Tested only on Linux.** Cross-platform support is a goal, not a promise — see the roadmap below.
+> - **The web build is experimental.** It runs in Chromium-based browsers (Chrome, Edge, Brave, Arc, Opera) via Web MIDI. Firefox and Safari don't support Web MIDI and won't work.
+> - If you try it, please [open an issue](../../issues) for anything weird — that feedback is what gets this to a stable release.
+>
+> **Hardware safety:** the editor only sends standard config SysEx messages that the official MF Utility also sends. There is no firmware-update or flash-erase code path. The worst-case bad mapping is recoverable via **Tools → Factory Reset**.
+>
+> **Not affiliated with DJ TechTools.** "MIDI Fighter Twister" and "DJ Tech Tools" are trademarks of DJ TechTools — this is a community project that talks to their hardware over the public MIDI/SysEx interface.
+
 ## Why
 
 DJ Tech Tools only ships their official MIDI Fighter Utility for Windows and macOS. This project gives Linux users a native editor, plus a browser-based editor that runs anywhere Web MIDI is supported.
@@ -28,7 +40,7 @@ DJ Tech Tools only ships their official MIDI Fighter Utility for Windows and mac
 
 ## Running the desktop editor
 
-Requires Python 3.10+.
+Linux only at v0.1. Requires Python 3.10+.
 
 ```bash
 uv sync
@@ -54,6 +66,14 @@ pnpm dev
 
 Open the URL Vite prints and authorise Web MIDI access when prompted. You'll need a Chromium-based browser — Firefox doesn't ship Web MIDI.
 
+## Roadmap toward v1.0
+
+- [ ] Verified macOS + Windows support for the desktop editor
+- [ ] Non-blocking device pull (current pull blocks the UI thread for ~10–20 s)
+- [ ] Push confirmation prompt + per-encoder progress
+- [ ] In-app diagnostics / log file
+- [ ] Real-device testing matrix for the web build (Chrome/Edge/Brave verified)
+
 ## License
 
-LGPL-3.0-or-later.
+LGPL-3.0-or-later. See [`LICENSE`](LICENSE).
