@@ -2,6 +2,11 @@
 
 Working notes for in-flight work. The user-facing roadmap toward v1.0 lives in [`README.md`](README.md#roadmap-toward-v10).
 
+## Upstream firmware `20260601` (see [docs/upstream-20260601.md](docs/upstream-20260601.md))
+
+- [ ] Stage 1 — compatibility-first: identity handshake on connect, 2026-firmware notice, opaque unknown-tag preservation through pull → preset → push, "Unknown (value N)" rendering for out-of-range enums
+- [ ] Stage 2 — bench reverse-engineering of the new SysEx fields (plan written; needs hardware time)
+
 ## Desktop (Python)
 
 - [ ] Move `pull_device_config` off the UI thread (currently blocks Qt for ~10–20 s — see `mft_editor/midi/device.py:97`)

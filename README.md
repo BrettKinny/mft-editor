@@ -21,6 +21,8 @@ This is an **early-tester release**. Expect rough edges, missing polish, and the
 
 **Hardware safety.** The editor only sends standard config SysEx that the official MF Utility also sends. There is no firmware-update or flash-erase code path anywhere in this codebase. Worst case, a bad mapping is recoverable in two clicks via **Tools → Factory Reset**.
 
+**⚠️ June 2026 firmware (`20260601`).** DJ TechTools released new Twister firmware and Midi Fighter Utility 2.91 on 2026-06-01, adding settings (Spread indicator, Bank Select, switchable palettes, 8-bank variant, …) whose SysEx encoding is not publicly documented. mft-editor currently targets the 2024-era firmware: it cannot edit the new settings, silently drops them when pulling from an updated device, and round-trip behaviour on the new firmware is **unverified**. I intend to investigate and add support — the findings and plan live in [`docs/upstream-20260601.md`](docs/upstream-20260601.md). Until then, if your Twister is on `20260601`, prefer the official utility.
+
 **Not affiliated with DJ TechTools.** "MIDI Fighter Twister" and "DJ Tech Tools" are trademarks of DJ TechTools — this is a community project that talks to their hardware over the public MIDI/SysEx interface.
 
 ---
@@ -80,6 +82,7 @@ The desktop and web editors deliberately implement the **same protocol from a si
 
 ## Roadmap toward v1.0
 
+- [ ] Firmware `20260601` compatibility: identity handshake, firmware-date detection, and round-trip preservation of unknown config fields ([plan](docs/upstream-20260601.md))
 - [ ] Verified macOS + Windows support for the desktop editor
 - [ ] Non-blocking device pull (current pull blocks the UI thread for ~10–20 s)
 - [ ] Per-encoder progress indicator during push
