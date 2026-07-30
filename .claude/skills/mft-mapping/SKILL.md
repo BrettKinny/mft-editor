@@ -18,8 +18,9 @@ based on the user's description of their desired mapping.
 
 1. Read the user's description of the mapping they want.
 2. Ask clarifying questions ONLY if critical information is ambiguous (e.g., which bank an encoder is in). For anything not specified, use sensible defaults.
-3. Generate a valid JSON file and write it to the path the user specifies, or default to `./mapping.json` in the current working directory.
-4. Briefly summarize what was generated (banks used, notable settings).
+3. Generate the preset with the adjacent `scripts/mft_preset.py` helper. Never hand-write or directly edit the 64 raw encoder arrays.
+4. Run the helper's strict validator on the finished file.
+5. Briefly summarize what was generated (banks used, notable settings).
 
 ## JSON Format
 
@@ -57,7 +58,7 @@ Each encoder has a push-button switch and an RGB LED ring indicator.
 
 | Idx | Field              | Range | Default | Notes |
 |-----|--------------------|-------|---------|-------|
-| 0   | midi_channel       | 0-15  | 3       | Base MIDI channel (0-indexed; displayed as ch 1-16 in most DAWs) |
+| 0   | midi_channel       | 0-15  | 3       | Stored byte; named updates require `user_channel(1..16)` |
 | 1   | side_is_banked     | 0-1   | 1       | Side buttons affected by banking |
 | 2   | side_func_1        | 0-12  | 0       | Left top side button |
 | 3   | side_func_2        | 0-12  | 7       | Left middle side button |
@@ -95,10 +96,10 @@ Each encoder has a push-button switch and an RGB LED ring indicator.
 | 0   | has_detent                 | 0-1   | 0             | Detent (center click) enabled |
 | 1   | movement                   | 0-2   | 0             | Encoder sensitivity mode |
 | 2   | switch_action_type         | 0-7   | 0             | Push button behavior |
-| 3   | switch_midi_channel        | 0-15  | 1             | Push button MIDI channel |
+| 3   | switch_midi_channel        | 0-15  | 1             | Stored byte; named updates require `user_channel(1..16)` |
 | 4   | switch_midi_number         | 0-127 | flat_index    | Push button CC/Note number |
 | 5   | switch_midi_type           | 0-5   | 1 (CC)        | Push button MIDI message type |
-| 6   | encoder_midi_channel       | 0-15  | 0             | Encoder rotation MIDI channel |
+| 6   | encoder_midi_channel       | 0-15  | 0             | Stored byte; named updates require `user_channel(1..16)` |
 | 7   | encoder_midi_number        | 0-127 | flat_index    | Encoder rotation CC/Note number |
 | 8   | encoder_midi_type          | 0-5   | 1 (CC)        | Encoder rotation MIDI message type |
 | 9   | active_color               | 0-127 | bank-dependent | LED color when active |
@@ -106,7 +107,7 @@ Each encoder has a push-button switch and an RGB LED ring indicator.
 | 11  | detent_color               | 0-127 | 63            | LED color at detent |
 | 12  | indicator_display_type     | 0-3   | 2             | Ring display mode |
 | 13  | is_super_knob              | 0-1   | 0             | Part of super knob group |
-| 14  | encoder_shift_midi_channel | 0-15  | 4             | Shift modifier MIDI channel |
+| 14  | encoder_shift_midi_channel | 0-15  | 4             | Stored byte; named updates require `user_channel(1..16)` |
 
 **flat_index** = bank * 16 + encoder_position (0-63)
 
@@ -195,34 +196,110 @@ Colors are indexed 0-127 into a fixed palette. Approximate color names:
 
 ## Generating a Mapping
 
-When the user describes their mapping, follow this approach:
+Use the bundled helper as an importable module. It is self-contained and uses
+only the Python standard library, so it also works when this skill is copied to
+an otherwise empty workspace.
 
-1. **Start from defaults.** For any encoder the user doesn't mention, use the default config for that bank:
-   ```
-   [0, 0, 0, 1, FLAT_INDEX, 1, 0, FLAT_INDEX, 1, ACTIVE, INACTIVE, 63, 2, 0, 4]
-   ```
-   where FLAT_INDEX = bank*16 + position, and ACTIVE/INACTIVE come from the bank defaults above.
+1. Resolve `scripts/mft_preset.py` relative to this `SKILL.md`.
+2. In inline Python, start with `Preset.defaults()`.
+3. Apply globals with `update_global(...)`. Use
+   `update_encoder(bank=..., position=..., ...)` only for a truly isolated
+   encoder.
+4. For every repeated mapping, call `update_encoders(...)` once. Put constant
+   fields in shared keyword arguments and each varying field in a
+   `per_encoder` list, tuple, or range aligned exactly with `positions`. Never
+   loop over `update_encoder` or hand-expand repeated configurations into
+   literal per-encoder dictionaries.
+5. Pass all four named channel fields (`midi_channel`,
+   `switch_midi_channel`, `encoder_midi_channel`, and
+   `encoder_shift_midi_channel`) through `user_channel(1..16)`. These setters
+   reject raw integers, including stored 0-15 values. The marker is consumed
+   by the helper and the JSON still contains plain 0-15 integers. Banks and
+   encoder positions passed to the helper are zero-indexed.
+6. Use the exported enums (`MidiType`, `EncSwActionType`, `EncMoveType`,
+   `DisplayType`, `SideSwAction`) instead of memorized numeric enum values.
+7. Call `preset.write(...)`; it strictly validates and atomically writes all 12
+   global fields and all 64 encoders.
+8. Run `python scripts/mft_preset.py validate <output>` against the same helper
+   path. Do not modify the JSON afterward.
 
-2. **Map user descriptions to field values.** Common patterns:
-   - "CC 20 on channel 1" -> encoder_midi_number=20, encoder_midi_channel=0 (0-indexed!)
-   - "Note 60" -> encoder_midi_type=0 (Note), encoder_midi_number=60
-   - "Toggle button" -> switch_action_type=1 (CC Toggle)
-   - "Red color" -> active_color=84
-   - "Relative encoder" -> encoder_midi_type=2
+Use this executable shell/Python shape, defining the change collections
+directly in the inline program instead of creating an intermediate file. Set
+`HELPER` to the adjacent script's actual path if the skill is installed
+somewhere other than the project-local location shown here.
 
-3. **MIDI channels are 0-indexed internally.** When the user says "channel 1", use value 0. "Channel 10" = value 9.
+The documented API is complete for generating mappings. Run it directly; do
+not inspect or modify the helper unless this documented invocation itself
+errors.
 
-4. **Always output all 64 encoders.** Even if only bank 0 is configured, fill banks 1-3 with defaults.
+```bash
+HELPER=".claude/skills/mft-mapping/scripts/mft_preset.py"
+OUTPUT="mapping.json"
+test -f "$HELPER"
 
-5. **Write valid JSON** with `"format": "mft-editor-v1"` and proper structure.
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$(dirname "$HELPER")" OUTPUT="$OUTPUT" python - <<'PY'
+import os
+
+from mft_preset import (
+    DisplayType,
+    EncMoveType,
+    EncSwActionType,
+    MidiType,
+    Preset,
+    SideSwAction,
+    user_channel,
+)
+
+global_changes = {
+    # "midi_channel": user_channel(5),
+}
+
+preset = Preset.defaults()
+preset.update_global(**global_changes)
+# Replace these illustrative values with the requested group.
+preset.update_encoders(
+    bank=0,
+    positions=range(4),
+    per_encoder={
+        "switch_midi_number": range(20, 24),
+        "encoder_midi_number": range(70, 74),
+    },
+    switch_midi_channel=user_channel(2),
+    encoder_midi_channel=user_channel(1),
+)
+preset.write(os.environ["OUTPUT"])
+PY
+
+PYTHONDONTWRITEBYTECODE=1 python "$HELPER" validate "$OUTPUT"
+```
+
+The grouped helper rejects empty or duplicate positions, nondeterministic
+position containers, invalid or out-of-range indexes, unknown or overlapping
+fields, non-sequence or wrong-length `per_encoder` values, and unmarked named
+channel values. It validates the entire group before applying any mutation.
+Final validation also rejects incomplete or malformed `mft-editor-v1` JSON.
 
 ## Example: Simple DJ Mapping (Bank 0 Only)
 
 User says: "4 volume faders on top row (CC 7-10 ch1), 4 EQ knobs on row 2 (CC 20-23 ch1), 4 effect sends on row 3 (CC 24-27 ch1), 4 filter knobs on bottom row (CC 28-31 ch1). All blue active, dark inactive."
 
-This translates to:
-- Encoders 0-3: CC 7-10, channel 0, active_color=1 (blue), inactive_color=0 (off)
-- Encoders 4-7: CC 20-23, same colors
-- Encoders 8-11: CC 24-27, same colors
-- Encoders 12-15: CC 28-31, same colors
-- Banks 1-3: defaults
+Express the repeated configuration as one group:
+
+```python
+preset.update_encoders(
+    bank=0,
+    positions=range(16),
+    per_encoder={
+        "encoder_midi_number": [
+            *range(7, 11),
+            *range(20, 32),
+        ],
+    },
+    encoder_midi_channel=user_channel(1),
+    encoder_midi_type=MidiType.CC,
+    active_color=1,
+    inactive_color=0,
+)
+```
+
+Banks 1-3 remain at their defaults.
